@@ -1,0 +1,20 @@
+[package]
+name = "auria-backend-gpu"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/auria-core/auria-runtime"
+authors = ["AURIA Team <auria@dust.llc>"]
+description = "AURIA Runtime Core - GPU execution backend"
+
+[features]
+default = []
+cuda = []
+metal = []
+rocm = []
+
+[dependencies]
+auria-core = { path = "../auria-core", version = "0.1.0"}
+auria-execution = { path = "../auria-execution", version = "0.1.0"}
+anyhow = "1.0"
+async-trait = "0.1"
