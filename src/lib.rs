@@ -1,11 +1,11 @@
-use auria_core::{ExecutionOutput, ExecutionState, Result, Tensor};
+use auria_core::{ExecutionOutput, ExecutionState, AuriaResult, Tensor};
 use async_trait::async_trait;
 
 #[async_trait]
 pub trait GpuBackend: Send + Sync {
     fn name(&self) -> &str;
     fn backend_type(&self) -> GpuBackendType;
-    async fn execute(&self, input: Tensor, experts: Vec<Tensor>, state: ExecutionState) -> Result<ExecutionOutput>;
+    async fn execute(&self, input: Tensor, experts: Vec<Tensor>, state: ExecutionState) -> AuriaResult<ExecutionOutput>;
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -25,7 +25,7 @@ impl<B: GpuBackend> GpuExecutionEngine<B> {
         Self { backend }
     }
 
-    pub async fn execute(&self, input: Tensor, experts: Vec<Tensor>, state: ExecutionState) -> Result<ExecutionOutput> {
+    pub async fn execute(&self, input: Tensor, experts: Vec<Tensor>, state: ExecutionState) -> AuriaResult<ExecutionOutput> {
         self.backend.execute(input, experts, state).await
     }
 }
