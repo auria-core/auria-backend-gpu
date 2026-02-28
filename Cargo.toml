@@ -9,12 +9,18 @@ description = "AURIA Runtime Core - GPU execution backend"
 
 [features]
 default = []
-cuda = []
-metal = []
-rocm = []
+cuda = ["auria-tensor"]
+metal = ["auria-tensor"]
+rocm = ["auria-tensor"]
 
 [dependencies]
 auria-core = { path = "../auria-core", version = "0.1.0"}
 auria-execution = { path = "../auria-execution", version = "0.1.0"}
+auria-backend-cpu = { path = "../auria-backend-cpu", version = "0.1.0"}
+auria-tensor = { path = "../auria-tensor", version = "0.1.0", optional = true }
 anyhow = "1.0"
 async-trait = "0.1"
+tokio = { version = "1", features = ["sync", "rt"] }
+thiserror = "1.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

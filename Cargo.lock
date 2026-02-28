@@ -38,11 +38,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "auria-backend-cpu"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "auria-core",
+ "auria-execution",
+ "num-traits",
+]
+
+[[package]]
 name = "auria-backend-gpu"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "auria-backend-cpu",
  "auria-core",
  "auria-execution",
 ]
@@ -116,10 +128,19 @@ dependencies = [
  "anyhow",
  "auria-core",
  "auria-security",
+ "hex",
  "lru",
+ "serde",
+ "serde_json",
  "thiserror",
  "tokio",
 ]
+
+[[package]]
+name = "autocfg"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
 name = "bitflags"
@@ -415,6 +436,15 @@ name = "num-conv"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf97ec579c3c42f953ef76dbf8d55ac91fb219dde70e49aa4a6b7d74e9919050"
+
+[[package]]
+name = "num-traits"
+version = "0.2.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
+dependencies = [
+ "autocfg",
+]
 
 [[package]]
 name = "once_cell"
