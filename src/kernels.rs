@@ -8,6 +8,60 @@
 use auria_core::AuriaResult;
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "cuda")]
+extern "C" {
+    fn cuda_relu(data: *mut f32, size: i32, stream: *mut std::ffi::c_void);
+    fn cuda_gelu(data: *mut f32, size: i32, stream: *mut std::ffi::c_void);
+    fn cuda_silu(data: *mut f32, size: i32, stream: *mut std::ffi::c_void);
+    fn cuda_matmul(
+        a: *const f32,
+        b: *const f32,
+        c: *mut f32,
+        m: i32,
+        n: i32,
+        k: i32,
+        stream: *mut std::ffi::c_void,
+    );
+    fn cuda_softmax(data: *mut f32, size: i32, stream: *mut std::ffi::c_void);
+    fn cuda_layer_norm(
+        data: *mut f32,
+        mean: *mut f32,
+        var: *mut f32,
+        batch_size: i32,
+        size: i32,
+        eps: f32,
+        stream: *mut std::ffi::c_void,
+    );
+    fn cuda_rms_norm(
+        data: *mut f32,
+        batch_size: i32,
+        size: i32,
+        eps: f32,
+        stream: *mut std::ffi::c_void,
+    );
+    fn cuda_attention(
+        q: *const f32,
+        k: *const f32,
+        v: *const f32,
+        output: *mut f32,
+        seq_len: i32,
+        head_dim: i32,
+        stream: *mut std::ffi::c_void,
+    );
+    fn cuda_float_to_half(
+        input: *const f32,
+        output: *mut i16,
+        size: i32,
+        stream: *mut std::ffi::c_void,
+    );
+    fn cuda_half_to_float(
+        input: *const i16,
+        output: *mut f32,
+        size: i32,
+        stream: *mut std::ffi::c_void,
+    );
+}
+
 #[derive(Clone, Debug)]
 pub struct KernelConfig {
     pub block_size: u32,
