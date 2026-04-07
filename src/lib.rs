@@ -8,7 +8,8 @@
 pub mod memory;
 pub mod kernels;
 
-use auria_core::{AuriaError, AuriaResult, ExecutionOutput, ExecutionState, Tensor, TensorDType, Tier};
+use auria_core::{AuriaError, AuriaResult, Tensor, TensorDType, Tier, UsageStats};
+use auria_execution::{ExecutionOutput, ExecutionState};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -324,8 +325,9 @@ impl GpuBackend for CudaBackend {
         
         Ok(ExecutionOutput {
             tokens,
-            usage: auria_core::UsageStats {
-                tokens_generated: state.position,
+            usage: UsageStats {
+                tokens_generated: state.position as u64,
+                tokens_processed: state.position as u64,
             },
         })
     }
@@ -497,8 +499,9 @@ impl GpuBackend for MetalBackend {
         
         Ok(ExecutionOutput {
             tokens,
-            usage: auria_core::UsageStats {
-                tokens_generated: state.position,
+            usage: UsageStats {
+                tokens_generated: state.position as u64,
+                tokens_processed: state.position as u64,
             },
         })
     }
@@ -584,7 +587,7 @@ impl GpuBackend for FallbackGpuBackend {
     async fn execute(&self, _input: Tensor, _experts: Vec<Tensor>, _state: ExecutionState) -> AuriaResult<ExecutionOutput> {
         Ok(ExecutionOutput {
             tokens: vec!["token_fallback".to_string()],
-            usage: auria_core::UsageStats { tokens_generated: 0 },
+            usage: UsageStats { tokens_generated: 0, tokens_processed: 0 },
         })
     }
 
