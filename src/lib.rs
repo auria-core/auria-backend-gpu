@@ -128,58 +128,6 @@ impl CudaBackend {
         result
     }
 
-    fn attention_gpu(&self, q: &[f32], k: &[f32], v: &[f32], batch_size: usize, seq_len: usize, num_heads: usize, head_dim: usize) -> Vec<f32> {
-        let mut output = vec![0.0f32; batch_size * seq_len * num_heads * head_dim];
-        
-        let scale = 1.0 / (head_dim as f32).sqrt();
-        
-        for b in 0..batch_size {
-            for h in 0..num_heads {
-                let q_offset = b * num_heads * seq_len * head_dim + h * seq_len * head_dim;
-                let k_offset = b * num_heads * seq_len * head_dim + h * seq_len * head_dim;
-                let v_offset = b * num_heads * seq_len * head_dim + h * seq_len * head_dim;
-                let out_offset = b * num_heads * seq_len * head_dim + h * seq_len * head_dim;
-                
-                for i in 0..seq_len {
-                    let mut attn_weights = vec![0.0f32; seq_len];
-                    let mut max_val = f32::MIN;
-                    
-                    for j in 0..seq_len {
-                        let q_idx = q_offset + i * head_dim;
-                        let k_idx = k_offset + j * head_dim;
-                        let mut dot = 0.0f32;
-                        for d in 0..head_dim {
-                            dot += q[q_idx + d] * k[k_idx + d];
-                        }
-                        attn_weights[j] = dot * scale;
-                        max_val = max_val.max(attn_weights[j]);
-                    }
-                    
-                    let mut sum_exp = 0.0f32;
-                    for j in 0..seq_len {
-                        attn_weights[j] = (attn_weights[j] - max_val).exp();
-                        sum_exp += attn_weights[j];
-                    }
-                    
-                    for j in 0..seq_len {
-                        attn_weights[j] /= sum_exp;
-                    }
-                    
-                    for d in 0..head_dim {
-                        let mut weighted_sum = 0.0f32;
-                        for j in 0..seq_len {
-                            let v_idx = v_offset + j * head_dim;
-                            weighted_sum += attn_weights[j] * v[v_idx + d];
-                        }
-                        output[out_offset + i * head_dim + d] = weighted_sum;
-                    }
-                }
-            }
-        }
-        
-        output
-    }
-
     fn gelu_gpu(&self, data: &mut [f32]) {
         let sqrt_2_over_pi = 0.7978845608028654;
         for val in data.iter_mut() {
@@ -187,24 +135,6 @@ impl CudaBackend {
             let cdf = 0.5 * (1.0 + (sqrt_2_over_pi * x * (1.0 + 0.044715 * x * x)).tanh());
             *val = x * cdf;
         }
-    }
-
-    fn rms_norm_gpu(&self, data: &[f32], num_groups: usize, epsilon: f32) -> Vec<f32> {
-        let group_size = data.len() / num_groups;
-        let mut result = vec![0.0f32; data.len()];
-        
-        for g in 0..num_groups {
-            let offset = g * group_size;
-            let slice = &data[offset..offset + group_size];
-            
-            let rms = (slice.iter().map(|x| x * x).sum::<f32>() / group_size as f32 + epsilon).sqrt();
-            
-            for (i, val) in slice.iter().enumerate() {
-                result[offset + i] = val / rms;
-            }
-        }
-        
-        result
     }
 
     fn convert_to_f32(&self, data: &[u8]) -> AuriaResult<Vec<f32>> {
@@ -489,7 +419,7 @@ impl GpuBackend for MetalBackend {
             *val = val.max(0.0);
         }
 
-        let output = Tensor {
+        let _output = Tensor {
             data: self.convert_to_f16(&data),
             shape: input.shape.clone(),
             dtype: TensorDType::FP16,
@@ -506,7 +436,7 @@ impl GpuBackend for MetalBackend {
         })
     }
 
-    async fn allocate_tensor(&self, shape: &[u32], dtype: TensorDType) -> AuriaResult<GpuMemory> {
+    async fn allocate_tensor(&self, shape: &[u32], _dtype: TensorDType) -> AuriaResult<GpuMemory> {
         let size: usize = shape.iter().map(|&d| d as usize).product::<usize>();
         let bytes = size * 2;
         
@@ -591,7 +521,7 @@ impl GpuBackend for FallbackGpuBackend {
         })
     }
 
-    async fn allocate_tensor(&self, shape: &[u32], dtype: TensorDType) -> AuriaResult<GpuMemory> {
+    async fn allocate_tensor(&self, shape: &[u32], _dtype: TensorDType) -> AuriaResult<GpuMemory> {
         let size: usize = shape.iter().map(|&d| d as usize).product::<usize>();
         let bytes = size * 2;
         

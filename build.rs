@@ -2,7 +2,6 @@
 // Copyright (c) 2026 AURIA Developers and Contributors
 
 use std::env;
-use std::path::Path;
 
 fn main() {
     let cuda_sdk = env::var("CUDA_PATH").ok();

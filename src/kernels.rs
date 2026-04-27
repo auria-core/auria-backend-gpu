@@ -123,7 +123,6 @@ impl GpuKernel {
 }
 
 pub struct MatmulKernel {
-    kernel: GpuKernel,
     transpose_a: bool,
     transpose_b: bool,
     alpha: f32,
@@ -133,7 +132,6 @@ pub struct MatmulKernel {
 impl MatmulKernel {
     pub fn new() -> Self {
         Self {
-            kernel: GpuKernel::new("matmul"),
             transpose_a: false,
             transpose_b: false,
             alpha: 1.0,
@@ -161,7 +159,7 @@ impl MatmulKernel {
         self
     }
 
-    pub fn launch(&self, m: usize, n: usize, k: usize) -> KernelLaunchConfig {
+    pub fn launch(&self, m: usize, n: usize, _k: usize) -> KernelLaunchConfig {
         let block_size: usize = 256;
         let grid_x: usize = (n + block_size - 1) / block_size;
         let grid_y: usize = (m + block_size - 1) / block_size;

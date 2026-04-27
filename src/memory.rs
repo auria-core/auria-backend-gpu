@@ -14,7 +14,6 @@ use tokio::sync::RwLock;
 #[derive(Clone)]
 pub struct GpuMemoryManager {
     devices: Arc<RwLock<HashMap<u32, DeviceMemory>>>,
-    default_device: u32,
 }
 
 #[derive(Clone)]
@@ -39,7 +38,6 @@ impl GpuMemoryManager {
     pub fn new() -> Self {
         Self {
             devices: Arc::new(RwLock::new(HashMap::new())),
-            default_device: 0,
         }
     }
 
